@@ -1,0 +1,3 @@
+L’ingestion est la première étape d’un projet RAG.
+Elle permet au modèle de comprendre des données externes.
+Un bon parsing améliore la qualité des réponses.

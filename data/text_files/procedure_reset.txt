@@ -1,0 +1,60 @@
+Procédure Technique — Redémarrage Serveur Applicatif  
+Version : 2.3 — Dernière mise à jour : 2024-02-07  
+Service responsable : Équipe Infra & Production  
+
+Objectif  
+Cette procédure décrit les étapes à suivre lorsqu’un serveur applicatif présente des lenteurs, des erreurs récurrentes  
+ou une instabilité réseau. Elle doit être appliquée avant toute escalade vers le support Niveau 3.
+
+Pré-requis  
+- Accès administrateur à la console du serveur  
+- Vérification de la fenêtre de maintenance  
+- Notification préalable aux équipes métier impactées  
+- Sauvegarde ou snapshot si nécessaire
+
+Étape 1 — Observation des symptômes  
+1. Vérifier l’utilisation CPU (si > 85% pendant plus de 10 min → anomalie probable).  
+2. Vérifier la RAM et la consommation du heap Java.  
+3. Contrôler les logs : erreurs répétées, timeouts, blocages de threads.  
+4. Tester l’accès aux endpoints internes pour confirmer l’instabilité.
+
+Étape 2 — Redémarrage matériel  
+1. Arrêter le serveur via l’interface d’administration.  
+2. Débrancher l’alimentation physique.  
+3. Attendre 30 secondes (décharge complète des condensateurs).  
+4. Rebrancher et rallumer.  
+Durée estimée : 2 minutes.
+
+Étape 3 — Vérification post-démarrage  
+1. Vérifier que tous les services internes se relancent automatiquement :  
+   - API Gateway  
+   - auth-service  
+   - reporting-engine  
+   - analytics-service  
+2. Contrôler les ports d’écoute.  
+3. Tester les endpoints critiques.  
+4. Vérifier que les latences sont revenues à la normale (< 200 ms).  
+5. Contrôler l’état final sur les dashboards internes.
+
+Notes importantes  
+- Ne jamais effectuer deux redémarrages successifs : cela peut masquer la cause du problème.  
+- Toujours consigner le redémarrage dans le journal de maintenance.  
+- Si les symptômes réapparaissent dans les 30 minutes → escalade immédiate Niveau 3.
+
+Fin de procédure.
+
+
+Procédure interne — Déverrouillage d’un compte utilisateur  
+Version : 2.1  
+Dernière mise à jour : 2024-06-14
+
+Étapes :
+1. Vérifier que le compte est réellement verrouillé dans l’annuaire LDAP.
+2. Identifier la cause : trop de tentatives, blocage administratif, expiration.
+3. Effectuer le déblocage via l’outil IAM (onglet "Gestion des comptes").
+4. Forcer une réinitialisation du mot de passe.
+5. Demander à l’utilisateur de se reconnecter et confirmer la résolution.
+
+Notes :
+- Ne jamais débloquer un compte sans authentification secondaire.
+- Les comptes sensibles (administration, finance) nécessitent double validation.

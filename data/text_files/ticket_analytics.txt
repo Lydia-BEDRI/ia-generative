@@ -1,0 +1,68 @@
+Support Ticket — Tableau de Bord Analytics  
+Ticket n° 58421  
+Ouvert le : 2024-02-18 — Priorité : Haute  
+Utilisateur : client_internaute42  
+Service impacté : analytics-service  
+
+Description du problème  
+Depuis 08h32, l’utilisateur ne parvient plus à charger le tableau de bord “Analytics”.  
+L’interface renvoie systématiquement :  
+504 Gateway Timeout  
+Le problème persiste après plusieurs tentatives, y compris en navigation privée.
+
+Environnement utilisateur  
+- Navigateur : Chrome 121  
+- Plateforme : Windows 11  
+- Réseau : VPN interne (latence moyenne 62ms)  
+- Session réinitialisée avant ouverture du ticket
+
+Actions utilisateur avant contact  
+- Rafraîchissement de la page  
+- Déconnexion / reconnexion  
+- Test sur smartphone (même résultat)  
+- Changement de réseau (mobile → wifi)
+
+Observations techniques côté support  
+1. Le service analytics-service affiche un pic CPU constant à 97%.  
+2. La taille de la file Kafka “analytics_jobs” dépasse les seuils habituels.  
+3. Plusieurs jobs ETL nocturnes ont échoué (logs : erreurs de parsing CSV).  
+4. Un lot d’événements n’a pas été consommé depuis 02h17 (bloque la génération des graphiques).  
+5. Les requêtes SQL montrent des temps de réponse anormalement longs (> 12 secondes).
+
+Actions effectuées  
+1. Vidage du cache applicatif.  
+2. Redémarrage du service analytics-service.  
+3. Exécution manuelle d’un job ETL pour débloquer la file.  
+4. Purge de la file Kafka “analytics_jobs_failed”.  
+5. Monitorings renforcés pendant 20 minutes après intervention.
+
+Analyse préliminaire  
+Il est probable que l’échec des jobs ETL nocturnes ait rendu les données incohérentes,  
+ce qui provoque un surcoût lors du chargement initial du dashboard.
+
+Statut actuel  
+Investigations en cours — escaladé à l’équipe DataOps.  
+Prochaines étapes : correction du parsing CSV + redémarrage orchestrateur ETL.
+
+Rapport — Retards dans le pipeline Analytics  
+Date : 2024-09-22  
+Service concerné : Dashboard Performance
+
+Symptômes :
+- Temps de chargement supérieurs à 30 secondes.
+- Plusieurs graphiques restent vides après 10 secondes.
+- Logs affichant : "ETL_DELAY_WARNING".
+
+Analyse :
+Le flux ETL "Refresh_DailyMetrics" a dépassé sa fenêtre d’exécution habituelle
+(de 5 minutes à 22 minutes).  
+L’origine provient d'une augmentation anormale du volume de données (x4 en 48h).
+
+Impact :
+- Les tableaux de bord n’affichent que des données partielles.
+- Les équipes commerciales ne disposent pas d’indicateurs actualisés.
+
+Mesures appliquées :
+- Optimisation temporaire de la requête d’agrégation.
+- Déclenchement manuel d’un recalcul.
+- Ajout d’un monitoring spécifique sur la volumétrie entrante.

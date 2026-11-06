@@ -1,0 +1,228 @@
+
+==============================
+GUIDE COMPLET – RAG & PYTHON
+==============================
+
+Le Retrieval-Augmented Generation (RAG) est une architecture moderne qui permet d'améliorer 
+de manière spectaculaire la qualité et la fiabilité des réponses générées par les modèles 
+de langage. L'idée centrale est simple : au lieu de laisser le modèle "inventer" du contenu 
+ou s'appuyer uniquement sur sa mémoire interne, on lui fournit des documents pertinents 
+récupérés dynamiquement avant la génération finale.
+a
+Dans un pipeline RAG classique, plusieurs étapes sont essentielles :
+
+1. INGESTION DES DONNÉES  
+   L’ingestion consiste à récupérer les données depuis plusieurs sources (PDF, TXT, DOCX, 
+   CSV, pages web, bases SQL, APIs, etc.). Chaque donnée brute doit être lue, transformée, 
+   nettoyée et convertie dans un format cohérent.  
+   En Python, l’ingestion se fait souvent avec LangChain, LlamaIndex ou des scripts 
+   personnalisés.
+
+2. NETTOYAGE & FORMATTAGE  
+   Le nettoyage est indispensable pour obtenir de bons embeddings.  
+   Le texte brut contient souvent :  
+   - des espaces multiples  
+   - des caractères spéciaux inutiles  
+   - des retours à la ligne excessifs  
+   - des encodages anormaux  
+   - des tableaux mal structurés  
+   - du code mêlé à des phrases  
+   - des métadonnées parasites  
+   Un texte propre permet au modèle d'interpréter correctement les informations.
+
+3. CONSTRUCTION DE DOCUMENTS  
+   Chaque document possède :  
+   - son contenu textuel  
+   - des métadonnées : source, page, auteur, date, type, etc.  
+   Les métadonnées sont cruciales dans un pipeline RAG évolué, car elles permettent 
+   d’améliorer la pertinence du retrieval et la transparence des réponses.
+
+4. SPLITTING / CHUNKING  
+   On découpe les documents en "chunks" via un TextSplitter :  
+   Exemple (LangChain) :
+       from langchain.text_splitter import RecursiveCharacterTextSplitter
+       splitter = RecursiveCharacterTextSplitter(
+           chunk_size=1000,
+           chunk_overlap=150,
+           separators=["\n\n", "\n", ".", " ", ""]
+       )
+   Ce découpage doit optimiser :
+   - cohérence sémantique  
+   - taille maîtrisée  
+   - overlap minimal mais utile  
+   - réduction de la perte de contexte  
+
+5. EMBEDDING  
+   Chaque chunk est transformé en vecteur numérique grâce à un modèle d'embedding.  
+   Cela permet de mesurer la similarité entre une requête et les documents.
+
+6. INDEXATION DANS UNE VECTOR DATABASE  
+   Exemples : FAISS, Chroma, Weaviate, Pinecone, Milvus, Qdrant.  
+   L’index vectoriel permet une recherche ultra rapide parmi des milliers ou millions de 
+   documents.
+
+7. RETRIEVAL  
+   Lorsqu’un utilisateur pose une question, on génère un embedding de cette question et 
+   on recherche les documents les plus pertinents dans la base vectorielle.
+
+8. GÉNÉRATION  
+   Le modèle final (GPT, Mistral, Llama 3, etc.) reçoit :  
+   - la question  
+   - les documents récupérés (contexte)  
+   On demande alors au modèle de produire une réponse précise, sourcée, et alignée aux 
+   données récupérées.
+
+==========================================
+SECTION – Implémentation Python complète
+==========================================
+
+Voici un mini-pipeline simplifié :
+
+from langchain_community.document_loaders import TextLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.chains import RetrievalQA
+from langchain.llms import OpenAI
+
+# Charger un fichier texte
+loader = TextLoader("mon_document.txt", encoding="utf-8")
+documents = loader.load()
+
+# Splitter
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=900,
+    chunk_overlap=100
+)
+chunks = splitter.split_documents(documents)
+
+# Embeddings
+embed = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+# Base vectorielle
+db = Chroma.from_documents(chunks, embedding=embed)
+
+# Retrieval
+retriever = db.as_retriever(search_kwargs={"k": 4})
+
+# Chaîne RAG
+qa_chain = RetrievalQA.from_chain_type(
+    llm=OpenAI(),
+    retriever=retriever,
+    return_source_documents=True
+)
+
+result = qa_chain.run("Explique-moi le RAG simplement.")
+
+==========================================
+SECTION – Bonnes pratiques en RAG
+==========================================
+
+1. Toujours nettoyer les données avant indexing.  
+2. Ne jamais utiliser des chunks trop petits ou trop grands.  
+3. Ajouter des métadonnées utiles (source, page, client, date).  
+4. Utiliser plusieurs types de TextSplitter selon la nature des données.  
+5. Tester différents modèles d'embeddings.  
+6. Vérifier régulièrement les performances du retriever.  
+7. Surveiller les hallucinations dans les réponses.  
+8. Mettre en place une architecture de logs + audit des réponses RAG.
+
+
+Nous vous expliquons comment personnaliser les grands modèles de langage (LLM) de manière plus rentable.
+
+Comprendre les avantages de la RAG
+Choisir le matériel
+Choisir un framework
+Créez votre base de connaissances
+Optimiser
+Accélérer la RAG avec Intel
+Points essentiels à retenir
+La RAG représente une approche idéale pour votre application LLM si vous ne disposez pas du temps ou du budget nécessaire à l'ajustement.
+
+Choisissez une plateforme de calcul capable d'alimenter l'ensemble du pipeline, notamment les charges de travail exigeantes de l'inférence LLM.
+
+Utilisez un framework RAG intégré tel que LangChain ou fastRAG d'Intel Lab pour simplifier le développement.
+
+Nous proposons des processeurs spécialement conçus et des optimisations clés pour maximiser les performances du pipeline RAG.
+
+Testez les performances des applications RAG sur le portefeuille d'IA Intel® et les fournisseurs Cloud grâce à Intel® Tiber™ Developer Cloud.
+
+ 
+La génération augmentée de récupération (RAG) vous permettant de personnaliser les LLM sans ajustement (fine-tuning), vous économisez de l'argent et accélérez le temps de déploiement. Cet article vous explique comment optimiser la mise en œuvre d'applications RAG pour votre entreprise.
+
+Accélérez vos initiatives de RAG et d'IA générative
+Les applications basées sur de grands modèles de langage (LLM), telles que les chatbots, offrent des avantages considérables quel que soit le secteur d'activité. Les entreprises utilisent les LLM pour réduire les coûts opérationnels, améliorer la productivité des employés et offrir des expériences clients plus personnalisées.
+
+Les entreprises comme la vôtre s'efforcent de transformer cette technologie révolutionnaire en un avantage concurrentiel, mais une grande partie d'entre elles devront d'abord adapter des LLM prêts à l'emploi aux données de leur organisation afin que les modèles puissent fournir des résultats d'IA spécifiques. Toutefois, les coûts et le temps nécessaires à l'ajustement des modèles constituent des obstacles considérables qui freinent de nombreux innovateurs potentiels.
+
+Pour surmonter ces obstacles, la génération augmentée de récupération (RAG) offre une approche plus rentable pour personnaliser les LLM. En ancrant des modèles sur vos données propriétaires sans ajustement, la RAG vous permet de lancer rapidement des applications LLM adaptées à votre entreprise ou à vos clients. Au lieu d'exiger un ré-entraînement ou un ajustement, elle vous permet de connecter le LLM prêt à l'emploi à une base de connaissances externe élaborée à partir des données uniques et exclusives à votre organisation. Cette base de connaissances alimente les résultats du modèle avec le contexte et les informations spécifiques de l'entreprise.
+
+Dans cet article, vous apprendrez à configurer les éléments clés de votre projet RAG, du choix du matériel et des logiciels à la construction de votre base de connaissances et à l'optimisation de votre application en production. Nous partagerons également des outils et des ressources qui vous permettront d'optimiser la puissance et l'efficacité de chaque phase du pipeline.
+
+Dans quels cas utiliser l'approche RAG ?
+Avant de commencer à évaluer les composants de base du pipeline, vous devez déterminer si la RAG ou l'ajustement convient mieux à votre application LLM.
+
+Comme ces deux approches reposent sur un LLM de base, la personnalisation des LLM est plus rapide qu'en entraînant un modèle à partir de zéro. Les modèles de base ont été pré-entraînés et ne nécessitent pas d'accès à des ensembles de données massifs, à une équipe d'experts en données ni à une puissance de calcul supplémentaire pour l'entraînement.
+
+Cependant, une fois que vous aurez choisi un modèle de base, vous devrez l'adapter à votre entreprise, afin qu'il produise des résultats répondant à vos défis et vos besoins. L'approche RAG peut s'avérer très utile pour votre application LLM si vous ne disposez pas du temps ou du budget nécessaire à l'ajustement. Elle réduit également le risque d'hallucinations, peut fournir des sources pour améliorer l'explicabilité de ses résultats et offrir des avantages en matière de sécurité, car les informations sensibles peuvent être conservées en toute sécurité dans des bases de données privées.
+
+En savoir plus sur les avantages que la RAG peut apporter à votre initiative d'IA générative.
+
+Choisissez un matériel qui privilégie les performances et la sécurité
+Le pipeline RAG comprend de nombreux composants à forte intensité de calcul, et les utilisateurs finaux attendent des réponses à faible latence. Le choix de la plateforme de calcul est donc fondamental.
+
+Les processeurs Intel® Xeon® vous permettent d'alimenter et de gérer l'ensemble du pipeline RAG sur une seule plateforme, rationalisant ainsi le développement, le déploiement et la maintenance. Ils sont dotés de moteurs d'IA intégrés pour accélérer les opérations clés du pipeline, notamment l'ingestion et la récupération des données, ainsi que l'inférence IA, sur le CPU, sans nécessiter de matériel supplémentaire.
+
+Pour les applications RAG qui nécessitent le débit le plus élevé ou la latence la plus faible, vous pouvez intégrer des accélérateurs d'IA Intel® Gaudi® afin de répondre aux exigences de performances avancées de manière rentable. Les accélérateurs Intel® Gaudi® sont conçus pour accélérer l'inférence et peuvent même remplacer les CPU et autres accélérateurs pour l'inférence RAG.
+
+Les entreprises utilisant souvent la RAG lorsqu'elles travaillent avec des données confidentielles, afin de sécuriser votre pipeline pendant le développement et la production est primordiale. Les processeurs Intel® Xeon® utilisent des technologies de sécurité intégrées, Intel® Software Guard Extensions (Intel® SGX) et Intel® Trust Domain Extensions (Intel® TDX), pour permettre un traitement sécurisé de l'IA sur l'ensemble du pipeline via l'informatique confidentielle et le chiffrement des données.
+
+Une fois déployée, votre application est susceptible de voir sa latence augmenter en raison d'une hausse de la demande de la part des utilisateurs finaux. Le matériel Intel® étant hautement évolutif, vous êtes en mesure d'ajouter rapidement des ressources d'infrastructure pour répondre à une utilisation croissante. Vous pouvez également intégrer des optimisations pour prendre en charge des opérations clés dans le pipeline, telles que la vectorisation des données, la recherche vectorielle et l'inférence LLM.
+
+Vous pouvez tester les performances RAG sur les processeurs Intel® Xeon® et Intel® Gaudi® IA via Intel® Tiber™ Developer Cloud.
+
+Utilisez un framework RAG pour intégrer facilement des chaînes d'outils d'IA
+Pour relier de nombreux composants, les pipelines RAG combinent plusieurs chaînes d'outils d'IA pour l'ingestion de données, les bases de données vectorielles, les LLM, et bien plus encore.
+
+Lorsque vous commencez à développer votre application RAG, les frameworks RAG intégrés tels que LangChain, fastRAG d'Intel Lab et LlamaIndex peuvent simplifier le développement. Les frameworks RAG fournissent souvent des API permettant d'intégrer des chaînes d'outils d'IA dans le pipeline et offrent des solutions basées sur des modèles pour des cas d'utilisation concrets.
+
+Intel propose des optimisations visant à maximiser les performances globales du pipeline sur le matériel Intel®. Par exemple, fastRAG intègre Intel® Extension for PyTorch et Optimum Habana afin d'optimiser les applications RAG sur les processeurs Intel® Xeon® et les accélérateurs d'IA Intel® Gaudi®.
+
+Intel a également optimisé LangChain afin d'améliorer les performances du matériel Intel®. Découvrez comment configurer facilement ce flux de travail à l'aide de LangChain et des accélérateurs d'IA Intel® Gaudi® 2.
+
+Créez votre base de connaissances
+La RAG permet aux entreprises de fournir aux LLM d'importantes informations exclusives sur leurs activités et leurs clients. Ces données sont stockées dans une base de données vectorielles que vous pouvez créer vous-même.
+
+Identifiez les sources d'informations
+Imaginez que vous souhaitez vous servir de la RAG pour déployer un assistant personnel d'IA qui répond aux questions des employés sur votre activité. Vous pouvez fournir à un LLM des données clés telles que des informations sur les produits, les politiques de l'entreprise, des données sur les clients et des protocoles spécifiques à un service. Les employés pourraient poser des questions au chatbot propulsé par la RAG et obtenir des réponses spécifiques à l'entreprise, ce qui leur permettrait d'accomplir leurs tâches plus rapidement et de se concentrer sur la réflexion stratégique.
+
+Bien évidemment, les bases de connaissances varient selon les secteurs d'activité et les applications. Une société pharmaceutique peut vouloir utiliser des archives de résultats de tests et d'antécédents des patients. Un fabricant peut transmettre les spécifications d'un équipement et les données historiques de performances à un bras robotisé basé sur la RAG afin qu'il puisse détecter rapidement les problèmes potentiels de cet équipement. Une institution financière peut vouloir connecter un LLM à des stratégies financières propriétaires et à des tendances de marché en temps réel pour permettre à un chatbot de fournir des conseils financiers personnalisés.
+
+En somme, vous devez collecter les données importantes auxquelles vous souhaitez que votre LLM ait accès pour constituer votre base de connaissances. Ces données peuvent provenir de diverses sources textuelles, notamment des PDF, des transcriptions vidéo, des e-mails, des diapositives de présentation et même des données tabulaires provenant de sources telles que des pages Wikipédia et des tableurs. La RAG prend également en charge les solutions d'IA multimodales, qui combinent plusieurs modèles d'IA pour traiter les données quelle que soit la modalité, notamment le son, les images et la vidéo.
+
+Par exemple, un détaillant peut utiliser une solution RAG multimodale pour rechercher rapidement des événements clés dans les vidéos de surveillance. Pour ce faire, il crée une base de données de séquences vidéo et utilise des invites textuelles, telles que « homme mettant quelque chose dans sa poche », pour identifier les séquences pertinentes au lieu d'avoir à les rechercher manuellement dans des centaines d'heures de vidéo.
+
+Préparez vos données
+Afin de préparer vos données en vue d'un traitement efficace, vous devez d'abord les nettoyer, par exemple en supprimant les informations en double et le bruit, puis les diviser en blocs gérables. Vous pouvez lire d'autres conseils pour nettoyer vos données ici.
+
+Ensuite, vous devrez utiliser un framework d'IA appelé modèle d'intégration pour convertir vos données en vecteurs, à savoir des représentations mathématiques du texte qui permettent au modèle de comprendre un plus grand contexte. Les modèles d'intégration peuvent être téléchargés à partir d'une tierce partie, comme ceux figurant sur le tableau de bord des modèles d'intégration open source de Hugging Face, et peuvent souvent être intégrés de manière transparente à votre framework RAG via les API de Hugging Face. Une fois la vectorisation effectuée, vous pouvez stocker vos données dans une base de données vectorielles afin qu'elles soient prêtes à être récupérées efficacement par le modèle.
+
+En fonction du volume et de la complexité de vos données, leur traitement et la création d'intégrations peut exiger autant de calculs que l'inférence LLM. Les processeurs Intel® Xeon® gèrent efficacement l'ingestion, l'intégration et la vectorisation de vos données sur un nœud basé sur des CPU, sans nécessiter de matériel supplémentaire.
+
+De plus, les processeurs Intel® Xeon® peuvent être associés à des modèles d'intégration quantifiés afin d'optimiser le processus de vectorisation, améliorant ainsi le débit d'encodage jusqu'à 4 fois par rapport aux modèles non quantifiés1.
+
+Optimisez les requêtes et la récupération du contexte
+Lorsqu'un utilisateur soumet une requête à un modèle basé sur la RAG, un mécanisme de récupération recherche dans votre base de connaissances des données externes pertinentes afin d'enrichir le résultat final du LLM. Ce processus s'appuie sur des opérations de recherche vectorielle pour trouver et classer les informations les plus pertinentes.
+
+Les opérations de recherche vectorielle sont hautement optimisées sur les processeurs Intel® Xeon®. Intel® Advanced Vector Extensions 512 (Intel® AVX-512) intégrée aux processeurs Intel® Xeon® améliore les opérations clés dans la recherche vectorielle et réduit le nombre d'instructions, offrant ainsi des améliorations significatives en matière de débit et de performances.
+
+Vous pouvez également tirer parti de la solution Scalable Vector Search (SVS) d'Intel Lab afin d'améliorer les performances des bases de données vectorielles. SVS optimise les capacités de recherche vectorielle sur les processeurs Intel® Xeon® afin d'améliorer les temps de recherche et les performances globales du pipeline.
+
+Optimisez la génération de réponses du LLM
+Une fois enrichi de données supplémentaires provenant de votre magasin de vecteurs, le LLM peut générer une réponse contextuelle précise. Cela nécessite l'inférence LLM, qui est généralement la phase la plus exigeante en matière de calcul dans le pipeline RAG.
+
+Les processeurs Intel® Xeon® utilisent Intel® Advanced Matrix Extensions (Intel® AMX), un accélérateur d'IA intégré, pour effectuer des opérations matricielles plus efficaces et améliorer la gestion de la mémoire, ce qui permet de maximiser les performances de l'inférence. Pour les LLM de taille moyenne et de grande taille, utilisez les accélérateurs d'IA Intel® Gaudi® pour accélérer l'inférence avec des performances et une efficacité spécialement conçues pour l'IA.
+
+Intel propose également plusieurs bibliothèques d'optimisation pour vous aider à maximiser l'inférence LLM sur vos ressources matérielles. Nos bibliothèques Intel® oneAPI offrent des optimisations de bas niveau pour les cadres d'IA populaires tels que PyTorch et TensorFlow, ce qui vous permet d'utiliser des outils open source familiers optimisés pour le matériel Intel®. Vous pouvez également ajouter des extensions telles que Intel® Extension pour PyTorch afin d'activer des techniques d'inférence quantifiée avancées dans le but d'améliorer les performances globales.
+
+Une fois votre application en production, vous souhaiterez peut-être passer à la dernière version du LLM pour répondre à la demande des utilisateurs finaux. Dans la mesure où la RAG ne nécessite pas d'ajustement et où votre base de connaissances existe en dehors du modèle, cette approche vous permet de remplacer rapidement votre LLM par un nouveau modèle afin d'

@@ -1,0 +1,5 @@
+id_ticket,client,priorite,date_creation,description,agent
+101,ACME Corp,Haute,2024-02-10,Le client signale un problème d'accès à la plateforme après une mise à jour.,Okan
+102,Globex,Moyenne,2024-02-11,Erreur intermittente lors du chargement des dashboards internes.,Sarah
+103,Stark Industries,Critique,2024-02-12,Crash complet du module de facturation lors de l'import d'un fichier XML.,Julien
+104,Wayne Enterprises,Basse,2024-02-13,Demande d'amélioration : ajouter une fonctionnalité d'export PDF pour les rapports.,Mila

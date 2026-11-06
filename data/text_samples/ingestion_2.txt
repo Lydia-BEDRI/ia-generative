@@ -1,0 +1,4 @@
+
+Les fichiers texte sont la forme la plus simple de données à ingérer.
+Mais dans un projet réel, tu auras souvent des PDF, des CSV, ou des documents Word.
+L'idée est de tout standardiser sous forme de Documents pour faciliter le traitement en aval.

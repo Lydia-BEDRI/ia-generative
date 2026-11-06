@@ -1,0 +1,65 @@
+Incident Report — API Gateway Failure  
+Date : 2024-01-12  
+Client : TechVision  
+Rédacteur : Équipe SRE / Support Niveau 2  
+
+Résumé exécutif  
+À 09:14, plusieurs services critiques ont commencé à remonter des erreurs liées à l’API Gateway.  
+Entre 09:14 et 09:52, le trafic entrant a été fortement perturbé, entraînant une indisponibilité partielle des services dépendants : authentification, reporting analytique, synchronisation CRM, gestion des comptes utilisateurs.
+
+Contexte  
+Depuis la mise en production de la version 3.14 du Gateway Manager, un mécanisme de répartition de charge dynamique a été introduit. Une surveillance renforcée était en cours, mais aucun symptôme anormal n’avait été observé avant l’incident.
+
+Chronologie détaillée  
+09:14 — Premiers signaux d’alerte (pics d’erreurs 502 et 504).  
+09:17 — Les dashboards internes affichent un taux d’échec des requêtes supérieur à 85%.  
+09:20 — Escalade automatique vers l’équipe SRE.  
+09:27 — Analyse des logs : saturation du thread pool et accumulation de requêtes en attente.  
+09:35 — Identification d’un nœud du cluster API ne répondant plus.  
+09:40 — Redémarrage du nœud défaillant.  
+09:47 — Stabilisation progressive du trafic.  
+09:52 — Retour à un fonctionnement normal.
+
+Impact métier  
+- 432 utilisateurs affectés  
+- 17 opérations critiques retardées  
+- Indisponibilité complète du portail analytics pendant 38 minutes  
+- Retard dans la synchronisation CRM (cycle de 10h)  
+Aucun impact sur la facturation, mais deux clients ont ouvert un ticket prioritaire.
+
+Analyse technique  
+Les logs révèlent une dégradation progressive liée à :  
+1. Une montée en charge inattendue provenant de scripts automatisés.  
+2. Une configuration sous-optimale du pool de threads.  
+3. Une fuite mémoire détectée sur le module de transformation JSON.
+
+Actions correctives immédiates  
+- Redémarrage du nœud API défaillant.  
+- Purge des files d’attente.  
+- Réduction temporaire du trafic entrant via throttling.
+
+Actions préventives  
+- Revoir la configuration du thread pool.  
+- Reproduire la montée en charge en environnement de préproduction.  
+- Planifier une refactorisation du module JSON Transformer (dépôt #247).
+
+Statut  
+Incident résolu. Analyse RCA en cours.
+
+
+Titre : Incident critique — Instabilité du Load Balancer  
+Date : 2024-10-03  
+Service impacté : Portail Client  
+
+Résumé :
+Entre 08:42 et 09:17, plusieurs fluctuations de latence ont été observées sur le Load Balancer principal.
+Certaines routes HTTP étaient inaccessibles, entraînant un taux d’erreur allant jusqu’à 64%.
+
+Cause identifiée :
+Une mise à jour automatique du module de health-check a introduit une mauvaise interprétation
+des temps de réponse, entraînant la mise en quarantaine erronée de trois serveurs applicatifs.
+
+Actions correctives :
+- Restauration des règles de health-check
+- Redémarrage progressif des instances LB
+- Synchronisation du cache de routage

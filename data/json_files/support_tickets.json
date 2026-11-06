@@ -1,0 +1,93 @@
+[
+  {
+    "ticket_id": 501,
+    "client": "TechVision",
+    "priority": "high",
+    "category": "API",
+    "agent": "Alice Dupont",
+    "details": {
+      "summary": "Problème de connexion à l’API",
+      "steps": [
+        "Test des identifiants",
+        "Analyse des logs",
+        "Escalade au support L2"
+      ],
+      "created_at": "2024-01-15T09:14:00Z"
+    },
+    "tags": [
+      "API",
+      "incident",
+      "urgent"
+    ],
+    "comments": [
+      {
+        "from": "client",
+        "text": "Impossible de se connecter depuis ce matin"
+      },
+      {
+        "from": "agent",
+        "text": "Ticket en cours d'analyse"
+      }
+    ]
+  },
+  {
+    "ticket_id": 502,
+    "client": "NovaBank",
+    "priority": "critical",
+    "category": "Sécurité",
+    "agent": "Mehmet Kaya",
+    "details": {
+      "summary": "Tentatives de connexion suspectes",
+      "steps": [
+        "Blocage temporaire du compte",
+        "Analyse comportementale",
+        "Transmission à l’équipe sécurité"
+      ],
+      "created_at": "2024-01-16T11:40:00Z"
+    },
+    "tags": [
+      "security",
+      "fraud"
+    ],
+    "comments": [
+      {
+        "from": "client",
+        "text": "On m’a signalé un accès non autorisé"
+      },
+      {
+        "from": "agent",
+        "text": "Le compte est sécurisé, investigations en cours"
+      }
+    ]
+  },
+  {
+    "ticket_id": 503,
+    "client": "GreenLogistics",
+    "priority": "low",
+    "category": "Dashboard",
+    "agent": "Laura Michel",
+    "details": {
+      "summary": "Demande d’ajout d’un nouveau KPI",
+      "steps": [
+        "Analyse de la faisabilité",
+        "Contact avec l’équipe data",
+        "Planification dans la roadmap"
+      ],
+      "created_at": "2024-01-17T14:05:00Z"
+    },
+    "tags": [
+      "feature",
+      "dashboard"
+    ],
+    "comments": [
+      {
+        "from": "client",
+        "text": "Pouvez-vous ajouter un KPI sur le taux de remplissage ?"
+      },
+      {
+        "from": "agent",
+        "text": "Demande transmise au Product Owner"
+      }
+    ]
+  }
+]

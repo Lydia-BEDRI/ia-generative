@@ -1,0 +1,32 @@
+[project]
+name = "ia-generative"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Lydia-BEDRI", email = "bedrilydia118@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "docx2txt>=0.9",
+    "faiss-cpu>=1.15.1",
+    "langchain>=1.4.7",
+    "langchain-community>=0.4.2",
+    "langchain-text-splitters",
+    "langchain-huggingface",
+    "langchain-chroma",
+    "langchain-openai>=1.7.3",
+    "pymupdf>=2.0",
+    "pypdf>=6.21.4",
+    "python-docx>=1.2.0",
+    "python-dotenv>=1.2.4",
+    "sentence-transformers>=6.2.0",
+    "unstructured>=0.27.36",
+]
+
+[project.scripts]
+ia-generative = "ia_generative:main"
+
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14.0"]
+build-backend = "uv_build"

@@ -1,0 +1,6 @@
+ticket_id,client,priority,creation_date,description
+301.0,Stark Industries,HIGH,2024/01/01,BUG: dashboard cannot load properly
+302.0,,low,01-02-2024,missing value
+302.0,Stark Industries,LOW,2024/01/02,Duplicate line from line 2
+303.0,Oscorp,CRITICAL,,
+,Wayne Ent.,N/A,BAD_DATE,Strange character line ☃
